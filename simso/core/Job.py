@@ -260,6 +260,12 @@ class Job(Process):
         """
         return self._absolute_deadline
 
+    @absolute_deadline.setter
+    def absolute_deadline(self, d):
+        """ assert isinstance(self._sim.scheduler, EDF_VD_mono), \
+            "Job deadline modification is only supported for EDF-VD scheduler." """
+        self._absolute_deadline = d
+
     @property
     def absolute_deadline_cycles(self):
         return self._absolute_deadline * self._sim.cycles_per_ms

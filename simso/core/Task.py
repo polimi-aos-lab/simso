@@ -20,7 +20,7 @@ class TaskInfo(object):
     def __init__(self, name, identifier, task_type, abort_on_miss, period,
                  activation_date, n_instr, mix, stack_file, wcet, acet,
                  et_stddev, deadline, base_cpi, followed_by,
-                 list_activation_dates, preemption_cost, data):
+                 list_activation_dates, criticality_level, preemption_cost, data):
         """
         :type name: str
         :type identifier: int
@@ -60,6 +60,7 @@ class TaskInfo(object):
         self.followed_by = followed_by
         self.abort_on_miss = abort_on_miss
         self.list_activation_dates = list_activation_dates
+        self.criticality_level = criticality_level
         self.data = data
         self.preemption_cost = preemption_cost
 
@@ -321,6 +322,55 @@ class PTask(GenericTask):
             yield hold, self, int(self.period * self._sim.cycles_per_ms)
 
 
+class MCPTask(PTask):
+    """
+    Periodic Mixed-Criticality Task process. Inherits from :class:`GenericTask`. The jobs are
+    created periodically and have an assigned criticality level in {LO, HI}.
+    """
+    fields = ['activation_date', 'period', 'deadline', 'wcet', 'wcet_hi', 'criticality_level']
+
+    CRIT_FACTOR = 2.0
+
+    def execute(self):
+        self._init()
+        # wait the activation date.
+        yield hold, self, int(self._task_info.activation_date *
+                              self._sim.cycles_per_ms)
+
+        while True:
+            #print self.sim.now(), "activate", self.name
+            self.create_job()
+            yield hold, self, int(self.period * self._sim.cycles_per_ms)
+
+    @property
+    def criticality_level(self):
+        """
+        Criticality level, as per the model from Vestal et al. (2007).
+        """
+        return self._task_info.criticality_level
+
+    @property
+    def wcet_hi(self):
+        """
+        The HI-mode WCET.
+        """
+        return self.CRIT_FACTOR * self._task_info.wcet
+
+    @property
+    def utilization_LO(self):
+        """
+        LO-mode utilization.
+        """
+        return float(self.wcet_lo) / self.period
+
+    @property
+    def utilization_HI(self):
+        """
+        HI-mode utilization.
+        """
+        return float(self.wcet_hi) / self.period
+
+
 class SporadicTask(GenericTask):
     """
     Sporadic Task process. Inherits from :class:`GenericTask`. The jobs are
@@ -329,7 +379,6 @@ class SporadicTask(GenericTask):
     fields = ['list_activation_dates', 'deadline', 'wcet']
 
     def execute(self):
-
         self._init()
         for ndate in self.list_activation_dates:
             yield hold, self, int(ndate * self._sim.cycles_per_ms) \
@@ -343,6 +392,7 @@ class SporadicTask(GenericTask):
 
 task_types = {
     "Periodic": PTask,
+    "MCPeriodic": MCPTask,
     "APeriodic": ATask,
     "Sporadic": SporadicTask
 }

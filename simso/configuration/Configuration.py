@@ -8,6 +8,7 @@ from simso.core.Scheduler import SchedulerInfo
 from simso.core import Scheduler
 from simso.core.Task import TaskInfo
 from simso.core.Processor import ProcInfo
+from simso.utils.MixedCriticality import CritLevel
 
 from .GenerateConfiguration import generate
 from .parser import Parser
@@ -279,20 +280,29 @@ class Configuration(object):
 
     def add_task(self, name, identifier, task_type="Periodic",
                  abort_on_miss=True, period=10, activation_date=0,
-                 n_instr=0, mix=0.5, stack_file="", wcet=0, acet=0,
+                 n_instr=0, mix=0.5, stack_file="", wcet=0, wcet_hi=0, acet=0,
                  et_stddev=0, deadline=10, base_cpi=1.0, followed_by=None,
-                 list_activation_dates=[], preemption_cost=0, data=None):
+                 list_activation_dates=[], criticality_level=None, preemption_cost=0, data=None):
         """
         Helper method to create a TaskInfo and add it to the list of tasks.
         """
         if data is None:
             data = dict((k, None) for k in self.task_data_fields)
 
+        if task_type == "MCPeriodic":
+            assert criticality_level is not None, \
+                "A Mixed-Criticality task must have an assigned criticality level."
+            
+            assert criticality_level in ["LO", "HI"], \
+                f"Supported criticality levels are: {{\'LO\', \'HI\'}} but \'{criticality_level}\' was set."
+            
+            criticality_level = CritLevel(criticality_level)
+
         task = TaskInfo(name, identifier, task_type, abort_on_miss, period,
                         activation_date, n_instr, mix,
                         (stack_file, self.cur_dir), wcet, acet, et_stddev,
                         deadline, base_cpi, followed_by, list_activation_dates,
-                        preemption_cost, data)
+                        criticality_level, preemption_cost, data)
         self.task_info_list.append(task)
         return task
 
