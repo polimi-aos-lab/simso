@@ -38,7 +38,7 @@ class Model(Simulation):
                 self, len(proc_info_list), configuration.apriori_et
             )
         except KeyError:
-            print("Unknowned Execution Time Model.", configuration.etm)
+            print("Unknown Execution Time Model.", configuration.etm)
 
         self._task_list = []
         for task_info in task_info_list:
