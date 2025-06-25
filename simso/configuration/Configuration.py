@@ -4,6 +4,7 @@
 import os
 import re
 from xml.dom import minidom
+from functools import reduce
 from simso.core.Scheduler import SchedulerInfo
 from simso.core import Scheduler
 from simso.core.Task import TaskInfo
