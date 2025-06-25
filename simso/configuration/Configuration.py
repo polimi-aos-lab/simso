@@ -5,6 +5,7 @@ import os
 import re
 from xml.dom import minidom
 from functools import reduce
+from math import (gcd, lcm)
 from simso.core.Scheduler import SchedulerInfo
 from simso.core import Scheduler
 from simso.core.Task import TaskInfo
@@ -22,15 +23,12 @@ if not hasattr(minidom.NamedNodeMap, '__contains__'):
 
 def _gcd(*numbers):
     """Return the greatest common divisor of the given integers"""
-    from fractions import gcd
     return reduce(gcd, numbers)
 
 
 # Least common multiple is not in standard libraries?
 def _lcm(numbers):
     """Return lowest common multiple."""
-    def lcm(a, b):
-        return (a * b) // _gcd(a, b)
     return reduce(lcm, numbers, 1)
 
 
