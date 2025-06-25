@@ -7,7 +7,7 @@ import random
 
 
 class ACET(AbstractExecutionTimeModel):
-    def __init__(self, sim, _):
+    def __init__(self, sim, *_):
         self.sim = sim
         self.et = {}
         self.executed = {}
