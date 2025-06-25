@@ -280,7 +280,7 @@ class Configuration(object):
 
     def add_task(self, name, identifier, task_type="Periodic",
                  abort_on_miss=True, period=10, activation_date=0,
-                 n_instr=0, mix=0.5, stack_file="", wcet=0, wcet_hi=0, acet=0,
+                 n_instr=0, mix=0.5, stack_file="", wcet=0, acet=0,
                  et_stddev=0, deadline=10, base_cpi=1.0, followed_by=None,
                  list_activation_dates=[], criticality_level=None, preemption_cost=0, data=None):
         """
