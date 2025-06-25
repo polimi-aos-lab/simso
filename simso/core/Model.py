@@ -35,7 +35,7 @@ class Model(Simulation):
 
         try:
             self._etm = execution_time_models[configuration.etm](
-                self, len(proc_info_list)
+                self, len(proc_info_list), configuration.apriori_et
             )
         except KeyError:
             print("Unknowned Execution Time Model.", configuration.etm)

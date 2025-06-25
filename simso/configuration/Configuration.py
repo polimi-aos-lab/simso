@@ -66,6 +66,7 @@ class Configuration(object):
             self.cycles_per_ms = 1000000
             self._caches_list = []
             self._task_info_list = []
+            self.apriori_et_list = []
             self.task_data_fields = {}
             self._proc_info_list = []
             self.proc_data_fields = {}
