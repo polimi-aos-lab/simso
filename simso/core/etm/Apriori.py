@@ -6,7 +6,7 @@ from simso.core.etm.AbstractExecutionTimeModel \
 
 
 class Apriori(AbstractExecutionTimeModel):
-    def __init__(self, sim, _, exec_times, *_):
+    def __init__(self, sim, _, exec_times):
         self.sim = sim
         self.exec_times = exec_times
         self.t_idx = 0
