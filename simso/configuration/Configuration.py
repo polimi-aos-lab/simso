@@ -280,7 +280,7 @@ class Configuration(object):
 
     def add_task(self, name, identifier, task_type="Periodic",
                  abort_on_miss=True, period=10, activation_date=0,
-                 n_instr=0, mix=0.5, stack_file="", wcet=0, acet=0,
+                 n_instr=0, mix=0.5, stack_file="", custom_etm=None, apriori_et=[], wcet=0, acet=0,
                  et_stddev=0, deadline=10, base_cpi=1.0, followed_by=None,
                  list_activation_dates=[], criticality_level=None, preemption_cost=0, data=None):
         """
@@ -300,7 +300,7 @@ class Configuration(object):
 
         task = TaskInfo(name, identifier, task_type, abort_on_miss, period,
                         activation_date, n_instr, mix,
-                        (stack_file, self.cur_dir), wcet, acet, et_stddev,
+                        (stack_file, self.cur_dir), custom_etm, apriori_et, wcet, acet, et_stddev,
                         deadline, base_cpi, followed_by, list_activation_dates,
                         criticality_level, preemption_cost, data)
         self.task_info_list.append(task)

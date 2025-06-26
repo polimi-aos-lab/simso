@@ -35,14 +35,10 @@ class Model(Simulation):
 
         try:
             self._etm = execution_time_models[configuration.etm](
-                self, len(proc_info_list), configuration.apriori_et
+                self, len(proc_info_list), configuration.apriori_et_list
             )
         except KeyError:
             print("Unknown Execution Time Model.", configuration.etm)
-
-        self._task_list = []
-        for task_info in task_info_list:
-            self._task_list.append(Task(self, task_info))
 
         # Init the processor class. This will in particular reinit the
         # identifiers to 0.
@@ -57,6 +53,10 @@ class Model(Simulation):
             proc = Processor(self, proc_info)
             proc.caches = proc_info.caches
             self._processors.append(proc)
+
+        self._task_list = []
+        for task_info in task_info_list:
+            self._task_list.append(Task(self, task_info))
 
         # XXX: too specific.
         self.penalty_preemption = configuration.penalty_preemption

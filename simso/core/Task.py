@@ -4,6 +4,7 @@ from collections import deque
 from SimPy.Simulation import Process, Monitor, hold, passivate
 from simso.core.Job import Job
 from simso.core.Timer import Timer
+from simso.core.etm import execution_time_models
 from .CSDP import CSDP
 
 import os
@@ -18,7 +19,7 @@ class TaskInfo(object):
     """
 
     def __init__(self, name, identifier, task_type, abort_on_miss, period,
-                 activation_date, n_instr, mix, stack_file, wcet, acet,
+                 activation_date, n_instr, mix, stack_file, custom_etm, apriori_et, wcet, acet,
                  et_stddev, deadline, base_cpi, followed_by,
                  list_activation_dates, criticality_level, preemption_cost, data):
         """
@@ -48,6 +49,8 @@ class TaskInfo(object):
         self.activation_date = activation_date
         self.n_instr = n_instr
         self.mix = mix
+        self.custom_etm = custom_etm
+        self.apriori_et = apriori_et
         self.wcet = wcet
         self.acet = acet
         self.et_stddev = et_stddev
@@ -136,7 +139,8 @@ class GenericTask(Process):
         self._activations_fifo = deque([])
         self._sim = sim
         self.cpu = None
-        self._etm = sim.etm
+        self._etm = sim._etm if task_info.custom_etm is None else \
+            execution_time_models[task_info.custom_etm](sim, len(self._sim.processors), task_info.apriori_et)
         self._job_count = 0
         self._last_cpu = None
         self._cpi_alone = {}
@@ -167,6 +171,15 @@ class GenericTask(Process):
         Extra data to characterize the task. Only used by the scheduler.
         """
         return self._task_info.data
+
+    @property
+    def etm(self):
+        """
+        The Execution Time Model for this task.
+        Can be either the default one (inherited from Model)
+        or one specific for this task.
+        """
+        return self._etm
 
     @property
     def deadline(self):
