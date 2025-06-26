@@ -98,7 +98,7 @@ class Model(Simulation):
     @property
     def etm(self):
         """
-        Execution Time Model
+        Execution Time Model.
         """
         return self._etm
 
