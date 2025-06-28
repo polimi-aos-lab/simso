@@ -1,11 +1,11 @@
 from simso.core.etm.AbstractExecutionTimeModel \
-    import AbstractExecutionTimeModel
+    import MCAbstractExecutionTimeModel
 
 # TODO: the seed should be specified in order to evaluate on identical systems.
 # More precisely, the computation time of the jobs should remain the same.
 
 
-class Apriori(AbstractExecutionTimeModel):
+class Apriori(MCAbstractExecutionTimeModel):
     def __init__(self, sim, _, exec_times):
         self.sim = sim
         self.exec_times = exec_times
@@ -58,6 +58,10 @@ class Apriori(AbstractExecutionTimeModel):
 
     def get_ret(self, job):
         return int(self.et[job] - self.get_executed(job))
+
+    def get_rwcet(self, job):
+        wcet_cycles = int(job.wcet * self.sim.cycles_per_ms)
+        return int(wcet_cycles - self.get_executed(job))
 
     def update(self):
         for job in list(self.on_execute_date.keys()):
