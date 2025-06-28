@@ -29,10 +29,8 @@ class Apriori(MCAbstractExecutionTimeModel):
 
     def on_activate(self, job):
         self.executed[job] = 0
-        self.et[job] = min(
-            job.task.wcet,
-            self.exec_times[self.t_idx % len(self.exec_times)]
-        ) * self.sim.cycles_per_ms
+        self.et[job] = self.exec_times[self.t_idx % len(self.exec_times)] \
+            * self.sim.cycles_per_ms
         self.t_idx += 1
 
     def on_execute(self, job):
