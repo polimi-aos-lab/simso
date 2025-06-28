@@ -38,3 +38,10 @@ class AbstractExecutionTimeModel(object):
 
     def get_executed(self, job):
         return job.computation_time_cycles
+
+class MCAbstractExecutionTimeModel(AbstractExecutionTimeModel):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def get_rwcet(self, _):
+        pass
