@@ -369,20 +369,6 @@ class MCPTask(PTask):
         """
         return self.CRIT_FACTOR * self._task_info.wcet
 
-    @property
-    def utilization_LO(self):
-        """
-        LO-mode utilization.
-        """
-        return float(self.wcet_lo) / self.period
-
-    @property
-    def utilization_HI(self):
-        """
-        HI-mode utilization.
-        """
-        return float(self.wcet_hi) / self.period
-
 
 class SporadicTask(GenericTask):
     """
