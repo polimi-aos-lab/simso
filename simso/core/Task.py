@@ -344,6 +344,20 @@ class MCPTask(PTask):
 
     CRIT_FACTOR = 2.0
 
+    @property
+    def criticality_level(self):
+        """
+        Criticality level, as per the model from Vestal et al. (2007).
+        """
+        return self._task_info.criticality_level
+
+    @property
+    def wcet_hi(self):
+        """
+        The HI-mode WCET.
+        """
+        return self.CRIT_FACTOR * self._task_info.wcet
+
     def execute(self):
         self._init()
         # wait the activation date.
@@ -381,21 +395,7 @@ class MCPTask(PTask):
         if job.end_date is None and (job.computation_time > 0 and job.computation_time < job.wcet_hi):
             if self._task_info.abort_on_miss:
                 self.cancel(job)
-                job.abort()
-
-    @property
-    def criticality_level(self):
-        """
-        Criticality level, as per the model from Vestal et al. (2007).
-        """
-        return self._task_info.criticality_level
-
-    @property
-    def wcet_hi(self):
-        """
-        The HI-mode WCET.
-        """
-        return self.CRIT_FACTOR * self._task_info.wcet
+                job.abort() 
 
 
 class SporadicTask(GenericTask):
@@ -424,7 +424,7 @@ task_types = {
     "Sporadic": SporadicTask
 }
 
-task_types_names = ["Periodic", "APeriodic", "Sporadic"]
+task_types_names = ["Periodic", "MCPeriodic", "APeriodic", "Sporadic"]
 
 
 def Task(sim, task_info):

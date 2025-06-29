@@ -4,7 +4,6 @@ from SimPy.Simulation import Process, hold, passivate
 from simso.core.JobEvent import JobEvent
 from simso.core.etm.AbstractExecutionTimeModel \
     import MCAbstractExecutionTimeModel
-#import simso.utils.MixedCriticality
 from math import (ceil, isclose)
 
 

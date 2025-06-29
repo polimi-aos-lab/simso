@@ -1,9 +1,6 @@
 from simso.core.etm.AbstractExecutionTimeModel \
     import MCAbstractExecutionTimeModel
 
-# TODO: the seed should be specified in order to evaluate on identical systems.
-# More precisely, the computation time of the jobs should remain the same.
-
 
 class Apriori(MCAbstractExecutionTimeModel):
     def __init__(self, sim, _, exec_times):
