@@ -9,6 +9,8 @@ from simso.utils.MixedCriticality import CritLevel
 
 @scheduler("simso.schedulers.EDF_VD_mono")
 class EDF_VD_mono(Scheduler):
+    _criticality_mode = CritLevel.LO
+
     def init(self):
         self.ready_list = []
 
@@ -17,6 +19,9 @@ class EDF_VD_mono(Scheduler):
                 "EDF-VD can only schedule Mixed-Criticality tasks."
 
     def on_activate(self, job):
+        if job.criticality_level < self.criticality_mode:
+            return
+
         if job.task.criticality_level == CritLevel.HI:
             Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
             Uhi_hi = self.system_utilization_at_level(CritLevel.HI, CritLevel.HI)
@@ -67,3 +72,16 @@ class EDF_VD_mono(Scheduler):
         Ulo_hi = self.system_utilization_at_level(CritLevel.LO, CritLevel.HI)
 
         return Ulo_hi / (1 - Ulo_lo)
+ 
+    @property
+    def criticality_mode(self):
+        """
+        The criticality mode the scheduler is operating at.
+        """
+        return self._criticality_mode
+    
+    @criticality_mode.setter
+    def criticality_mode(self, c):
+        assert isinstance(c, CritLevel) or isinstance(c, str), \
+            "Criticality level must be specified using the `CritLevel` enum or a string in {'LO', 'HI'}."
+        self._criticality_mode = CritLevel.from_string(c) if isinstance(c, str) else c

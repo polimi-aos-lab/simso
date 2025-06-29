@@ -356,6 +356,7 @@ class MCJob(Job):
     def _on_mode_switch(self, crit_level):
         #self._on_checkpoint_exec()
         self._etm.on_mode_switch(self, crit_level)
+        self.cpu.sched.criticality_mode = crit_level
 
     def activate_job(self):
         self._start_date = self.sim.now()
