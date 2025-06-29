@@ -146,6 +146,7 @@ class Scheduler(object):
         self.overhead_terminate = scheduler_info.overhead_terminate
         self.data = scheduler_info.data
         self.monitor = Monitor(name="MonitorScheduler", sim=sim)
+        self.clas = scheduler_info.clas
 
     def init(self):
         """

@@ -4,7 +4,7 @@ from collections import deque
 from SimPy.Simulation import Process, Monitor, hold, waituntil
 from simso.core.ProcEvent import ProcRunEvent, ProcIdleEvent, \
     ProcOverheadEvent, ProcCxtSaveEvent, ProcCxtLoadEvent
-
+import simso.schedulers
 
 RESCHED = 1
 ACTIVATE = 2
@@ -157,6 +157,9 @@ class Processor(Process):
                     self.monitor.observe(ProcRunEvent(job))
                     job.context_ok = False
                 else:
+                    # TODO: fix this ugly hack.
+                    if self.sched.clas in ('simso.schedulers.EDF_VD_mono'):
+                        self.sched.criticality_mode = 'LO'
                     self.monitor.observe(ProcIdleEvent())
 
                 # Wait event.
