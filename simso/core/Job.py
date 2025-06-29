@@ -394,9 +394,9 @@ class MCJob(Job):
                         rwcet = self._etm.get_rwcet(self) if isinstance(self._etm, MCAbstractExecutionTimeModel) else 2**20
 
                         #print(f"REM [{self.name}] C = {self.computation_time} ret = {ret/self._sim.cycles_per_ms} rwcet = {rwcet/self._sim.cycles_per_ms}")
-                        if isclose(ret, 0.0, rel_tol=1E-05):
+                        if isclose(ret, 0.0):
                             print(f"IMP: Job {self.name} has finished its execution...")
-                        elif isclose(rwcet, 0.0, rel_tol=1E-05):
+                        elif isclose(rwcet, 0.0):
                             print(f"IMP: Job {self.name} has passed C_lo without signaling completion ==> switch to HI mode...")
                             self._on_mode_switch('HI')
                             rwcet = self._etm.get_rwcet(self)
