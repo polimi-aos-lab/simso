@@ -2,7 +2,10 @@
 
 from SimPy.Simulation import Process, hold, passivate
 from simso.core.JobEvent import JobEvent
-from math import ceil
+from simso.core.etm.AbstractExecutionTimeModel \
+    import MCAbstractExecutionTimeModel
+#import simso.utils.MixedCriticality
+from math import (ceil, isclose)
 
 
 class Job(Process):
@@ -316,6 +319,88 @@ class Job(Process):
 
                 if ret <= 0:
                     # End of job.
+                    self._on_terminated()
+
+            else:
+                self.interruptReset()
+
+class MCJob(Job):
+    """
+    The MCJob class simulates the behaviour of a Mixed-Criticality job, which
+    is allowed to execute past its LO-mode WCET.
+    """
+
+    @property
+    def criticality_level(self):
+        """
+        The criticality level of the job, inherited from the task.
+        """
+        return self.task.criticality_level
+
+    @property
+    def wcet_hi(self):
+        """
+        HI-mode Worst-Case Execution Time in milliseconds.
+        Equivalent to ``self.task.wcet_hi``.
+        """
+        return self._task.wcet_hi
+    
+    def _on_checkpoint_exec(self):
+        """
+        Similar to ``_on_stop_exec``, but doesn't reset the date
+        of last execution.
+        """
+        if self._last_exec is not None:
+            self._computation_time += self.sim.now() - self._last_exec
+    
+    def _on_mode_switch(self, crit_level):
+        #self._on_checkpoint_exec()
+        self._etm.on_mode_switch(self, crit_level)
+
+    def activate_job(self):
+        self._start_date = self.sim.now()
+        # Notify the OS.
+        self._task.cpu.activate(self)
+
+        # While the job's execution is not finished.
+        while self._end_date is None:
+            # Wait an execute order.
+            yield passivate, self
+
+            # Execute the job.
+            if not self.interrupted():
+                self._on_execute()
+                # ret is a duration lower than the remaining execution time.
+                ret = self._etm.get_ret(self)
+                rwcet = self._etm.get_rwcet(self) if isinstance(self._etm, MCAbstractExecutionTimeModel) else 2**20
+
+                #print(f"EXEC [{self.name}] C = {self.computation_time} ret = {ret / self._sim.cycles_per_ms} rwcet = {rwcet / self._sim.cycles_per_ms}")
+                while ret > 0:
+                    yield hold, self, min(int(ceil(ret)), int(ceil(rwcet)))
+
+                    if not self.interrupted():
+                        # If executed without interruption for min(ret, rwcet) cycles.
+                        ret = self._etm.get_ret(self)
+                        rwcet = self._etm.get_rwcet(self) if isinstance(self._etm, MCAbstractExecutionTimeModel) else 2**20
+
+                        #print(f"REM [{self.name}] C = {self.computation_time} ret = {ret/self._sim.cycles_per_ms} rwcet = {rwcet/self._sim.cycles_per_ms}")
+                        if isclose(ret, 0.0, rel_tol=1E-05):
+                            print(f"IMP: Job {self.name} has finished its execution...")
+                        elif isclose(rwcet, 0.0, rel_tol=1E-05):
+                            print(f"IMP: Job {self.name} has passed C_lo without signaling completion ==> switch to HI mode...")
+                            self._on_mode_switch('HI')
+                            rwcet = self._etm.get_rwcet(self)
+                    else:
+                        if isinstance(self._etm, MCAbstractExecutionTimeModel):
+                            print(f"PREEMPT [{self.name}] C = {self.computation_time} ret = {self._etm.get_ret(self)/self._sim.cycles_per_ms} rwcet = {self._etm.get_rwcet(self)/self._sim.cycles_per_ms}")
+                        self._on_preempted()
+                        self.interruptReset()
+                        break
+
+                if ret <= 0:
+                    # End of job.
+                    if isinstance(self._etm, MCAbstractExecutionTimeModel):
+                        print(f"TERM [{self.name}] C = {self.actual_computation_time} ret = {self._etm.get_ret(self)/self._sim.cycles_per_ms} rwcet = {self._etm.get_rwcet(self)/self._sim.cycles_per_ms}")
                     self._on_terminated()
 
             else:

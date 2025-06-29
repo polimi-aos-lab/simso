@@ -2,7 +2,7 @@
 
 from collections import deque
 from SimPy.Simulation import Process, Monitor, hold, passivate
-from simso.core.Job import Job
+from simso.core.Job import (Job, MCJob)
 from simso.core.Timer import Timer
 from simso.core.etm import execution_time_models
 from .CSDP import CSDP
@@ -354,6 +354,31 @@ class MCPTask(PTask):
             #print self.sim.now(), "activate", self.name
             self.create_job()
             yield hold, self, int(self.period * self._sim.cycles_per_ms)
+
+    def create_job(self, pred=None):
+        """
+        Create a new mixed-criticality job from this task. This should probably not be used
+        directly by a scheduler.
+        """
+        self._job_count += 1
+        job = MCJob(self, "{}_{}".format(self.name, self._job_count), pred,
+                  monitor=self._monitor, etm=self._etm, sim=self.sim)
+
+        if len(self._activations_fifo) == 0:
+            self.job = job
+            self.sim.activate(job, job.activate_job())
+        self._activations_fifo.append(job)
+        self._jobs.append(job)
+
+        timer_deadline = Timer(self.sim, GenericTask._job_killer,
+                               (self, job), self.deadline)
+        timer_deadline.start()
+
+    def _job_killer(self, job):
+        if job.end_date is None and job.computation_time < job.wcet_hi:
+            if self._task_info.abort_on_miss:
+                self.cancel(job)
+                job.abort()
 
     @property
     def criticality_level(self):
