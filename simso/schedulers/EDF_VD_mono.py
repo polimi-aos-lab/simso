@@ -72,14 +72,22 @@ class EDF_VD_mono(Scheduler):
         Ulo_hi = self.system_utilization_at_level(CritLevel.LO, CritLevel.HI)
 
         return Ulo_hi / (1 - Ulo_lo)
- 
+
+    @property
+    def has_switched_mode(self):
+        """
+        Returns true if the scheduler has already done
+        at least a mode switch.
+        """
+        return self.criticality_mode > CritLevel.LO
+
     @property
     def criticality_mode(self):
         """
         The criticality mode the scheduler is operating at.
         """
         return self._criticality_mode
-    
+ 
     @criticality_mode.setter
     def criticality_mode(self, c):
         assert isinstance(c, CritLevel) or isinstance(c, str), \
