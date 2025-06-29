@@ -370,12 +370,15 @@ class MCPTask(PTask):
         self._activations_fifo.append(job)
         self._jobs.append(job)
 
-        timer_deadline = Timer(self.sim, GenericTask._job_killer,
+        timer_deadline = Timer(self.sim, MCPTask._job_killer,
                                (self, job), self.deadline)
         timer_deadline.start()
 
     def _job_killer(self, job):
-        if job.end_date is None and job.computation_time < job.wcet_hi:
+        # Skip jobs which have never been released
+        # because of a mode switch.
+        # This is a bit of a hack...
+        if job.end_date is None and (job.computation_time > 0 and job.computation_time < job.wcet_hi):
             if self._task_info.abort_on_miss:
                 self.cancel(job)
                 job.abort()
