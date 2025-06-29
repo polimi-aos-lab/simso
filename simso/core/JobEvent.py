@@ -7,6 +7,7 @@ class JobEvent:
     PREEMPTED = 3
     TERMINATED = 4
     ABORTED = 5
+    OVERRUN = 6
 
     count = 0
 

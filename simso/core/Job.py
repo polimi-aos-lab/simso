@@ -358,6 +358,12 @@ class MCJob(Job):
         self._etm.on_mode_switch(self, crit_level)
         self.cpu.sched.criticality_mode = crit_level
 
+        self._monitor.observe(JobEvent(self, JobEvent.OVERRUN))
+        self._sim.logger.log(self.name + " Overrun! Switch to " + crit_level +
+                            " mode. C: " + str(self.actual_computation_time) +
+                            " ret: " + str(self._etm.get_ret(self) / self._sim.cycles_per_ms),
+                            kernel=True)
+
     def activate_job(self):
         self._start_date = self.sim.now()
         # Notify the OS.
