@@ -27,6 +27,9 @@ class SchedulerR(object):
         self.schedule_count = 0
         self.activate_count = 0
         self.terminate_count = 0
+        self.mc_mode_switch_count = 0
+        self.mc_mode_resume_count = 0
+        self.mc_dropped_job_count = {}
 
 
 class TaskR(object):
@@ -288,6 +291,14 @@ class Results(object):
                 self.scheduler.terminate_count += 1
             elif evt.event == SchedulerEvent.END_TERMINATE:
                 self.scheduler.terminate_overhead += t - last
+            elif evt.event == SchedulerEvent.MODE_SWITCH_UP:
+                self.scheduler.mc_mode_switch_count += 1
+            elif evt.event == SchedulerEvent.MODE_SWITCH_DOWN:
+                self.scheduler.mc_mode_resume_count += 1
+            elif evt.event == SchedulerEvent.DROPPED_JOB:
+                if evt.job._task.name not in self.scheduler.mc_dropped_job_count:
+                    self.scheduler.mc_dropped_job_count[evt.job._task.name] = 0
+                self.scheduler.mc_dropped_job_count[evt.job._task.name] += 1
             last = t
 
     def _generate_processors(self):

@@ -8,7 +8,8 @@ import inspect
 from simso.core.SchedulerEvent import SchedulerBeginScheduleEvent, \
     SchedulerEndScheduleEvent, SchedulerBeginActivateEvent, \
     SchedulerEndActivateEvent, SchedulerBeginTerminateEvent, \
-    SchedulerEndTerminateEvent
+    SchedulerEndTerminateEvent, SchedulerModeSwitchUpEvent, \
+    SchedulerModeSwitchDownEvent, SchedulerDropJobEvent
 from SimPy.Simulation import Monitor
 
 
@@ -242,6 +243,15 @@ class Scheduler(object):
 
     def monitor_end_terminate(self, cpu):
         self.monitor.observe(SchedulerEndTerminateEvent(cpu))
+
+    def monitor_mode_switch_up(self, cpu, timestamp):
+        self.monitor.observe(SchedulerModeSwitchUpEvent(cpu, timestamp))
+
+    def monitor_mode_switch_down(self, cpu, timestamp):
+        self.monitor.observe(SchedulerModeSwitchDownEvent(cpu, timestamp))
+
+    def monitor_drop_job(self, cpu, job):
+        self.monitor.observe(SchedulerDropJobEvent(cpu, job))
 
 
 def get_schedulers():

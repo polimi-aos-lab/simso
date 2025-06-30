@@ -8,6 +8,9 @@ class SchedulerEvent(object):
     END_ACTIVATE = 4
     BEGIN_TERMINATE = 5
     END_TERMINATE = 6
+    MODE_SWITCH_UP = 7
+    MODE_SWITCH_DOWN = 8
+    DROPPED_JOB = 9
 
     def __init__(self, cpu):
         self.event = 0
@@ -48,3 +51,24 @@ class SchedulerEndTerminateEvent(SchedulerEvent):
     def __init__(self, cpu):
         SchedulerEvent.__init__(self, cpu)
         self.event = SchedulerEvent.END_TERMINATE
+
+
+class SchedulerModeSwitchUpEvent(SchedulerEvent):
+    def __init__(self, cpu, timestamp):
+        SchedulerEvent.__init__(self, cpu)
+        self.event = SchedulerEvent.MODE_SWITCH_UP
+        self.when = timestamp
+
+
+class SchedulerModeSwitchDownEvent(SchedulerEvent):
+    def __init__(self, cpu, timestamp):
+        SchedulerEvent.__init__(self, cpu)
+        self.event = SchedulerEvent.MODE_SWITCH_DOWN
+        self.when = timestamp
+
+
+class SchedulerDropJobEvent(SchedulerEvent):
+    def __init__(self, cpu, job):
+        SchedulerEvent.__init__(self, cpu)
+        self.event = SchedulerEvent.DROPPED_JOB
+        self.job = job

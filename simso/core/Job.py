@@ -352,15 +352,17 @@ class MCJob(Job):
             self._computation_time += self.sim.now() - self._last_exec
     
     def _on_mode_switch(self, crit_level):
-        #self._on_checkpoint_exec()
-        self._etm.on_mode_switch(self, crit_level)
         self.cpu.sched.criticality_mode = crit_level
+        self._etm.on_mode_switch(self, crit_level)
 
         self._monitor.observe(JobEvent(self, JobEvent.OVERRUN))
-        self._sim.logger.log(self.name + " Overrun! Switch to " + crit_level +
-                            " mode. C: " + str(self.actual_computation_time) +
+        self._sim.logger.log(self.name + " Overrun! C: " + str(self.actual_computation_time) +
                             " ret: " + str(self._etm.get_ret(self) / self._sim.cycles_per_ms),
                             kernel=True)
+        self.cpu.sched.monitor_mode_switch_up(self.cpu, self._sim.now())
+        self._sim.logger.log(self.name + " Switch to criticality level " + \
+                             str(self.cpu.sched.criticality_mode),
+                             kernel=False)
 
     def activate_job(self):
         self._start_date = self.sim.now()

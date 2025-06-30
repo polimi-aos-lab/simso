@@ -4,7 +4,6 @@ from collections import deque
 from SimPy.Simulation import Process, Monitor, hold, waituntil
 from simso.core.ProcEvent import ProcRunEvent, ProcIdleEvent, \
     ProcOverheadEvent, ProcCxtSaveEvent, ProcCxtLoadEvent
-import simso.schedulers
 
 RESCHED = 1
 ACTIVATE = 2
@@ -157,9 +156,16 @@ class Processor(Process):
                     self.monitor.observe(ProcRunEvent(job))
                     job.context_ok = False
                 else:
+                    self.sim.logger.log(self.name + " idle.", kernel=True)
                     # TODO: fix this ugly hack.
                     if self.sched.clas in ('simso.schedulers.EDF_VD_mono'):
-                        self.sched.criticality_mode = 'LO'
+                        if str(self.sched.criticality_mode) == 'HI':
+                            self.sched.criticality_mode = 'LO'
+                            self.sched.monitor_mode_switch_down(self, self.sim.now())
+                            self.sim.logger.log(self.name + " Switch back to criticality level " + \
+                                                str(self.sched.criticality_mode) + ".",
+                                                kernel=False)
+                    
                     self.monitor.observe(ProcIdleEvent())
 
                 # Wait event.

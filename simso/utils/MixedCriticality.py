@@ -11,6 +11,12 @@ class CritLevel(Enum):
             return self.value < other.value
         return NotImplemented
 
+    def __str__(self):
+        if self.value == 0:
+            return 'LO'
+        elif self.value == 1:
+            return 'HI'
+
     @staticmethod
     def from_string(s):
         if s in ('LO'):
