@@ -63,7 +63,7 @@ class EDF_VD_mono(Scheduler):
     @property
     def vd_coeff(self):
         """
-        Coefficient for virtual deadlines.
+        Virtual deadline scaling factor.
         """
         Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
         Ulo_hi = self.system_utilization_at_level(CritLevel.LO, CritLevel.HI)
