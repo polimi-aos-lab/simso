@@ -353,7 +353,10 @@ class MCJob(Job):
     
     def _on_mode_switch(self, crit_level):
         self.cpu.sched.criticality_mode = crit_level
-        self._etm.on_mode_switch(self, crit_level)
+        # NOTE: It's really important to notify _every_
+        # ETM upon a mode change, to avoid timing bugs.
+        for t in self._sim.task_list:
+            t.etm.on_mode_switch(self, crit_level)
 
         self._monitor.observe(JobEvent(self, JobEvent.OVERRUN))
         self._sim.logger.log(self.name + " Overrun! C: " + str(self.actual_computation_time) +
@@ -380,19 +383,16 @@ class MCJob(Job):
                 self._on_execute()
                 # ret is a duration lower than the remaining execution time.
                 ret = self._etm.get_ret(self)
-                rwcet = self._etm.get_rwcet(self) if isinstance(self._etm, MCAbstractExecutionTimeModel) else 2**20
+                rwcet = self._etm.get_rwcet(self)
 
                 #print(f"EXEC [{self.name}] C = {self.computation_time} ret = {ret / self._sim.cycles_per_ms} rwcet = {rwcet / self._sim.cycles_per_ms}")
                 while ret > 0:
-                    if self.cpu.sched.has_switched_mode:
-                        yield hold, self, int(ceil(ret))
-                    else:
-                        yield hold, self, min(int(ceil(ret)), int(ceil(rwcet)))
+                    yield hold, self, min(int(ceil(ret)), int(ceil(rwcet)))
 
                     if not self.interrupted():
-                        # If executed without interruption for min(ret, rwcet) cycles.
+                        # If executed without interruption for either ret or rwcet cycles.
                         ret = self._etm.get_ret(self)
-                        rwcet = self._etm.get_rwcet(self) if isinstance(self._etm, MCAbstractExecutionTimeModel) else 2**20
+                        rwcet = self._etm.get_rwcet(self)
 
                         #print(f"REM [{self.name}] C = {self.computation_time} ret = {ret/self._sim.cycles_per_ms} rwcet = {rwcet/self._sim.cycles_per_ms}")
                         if isclose(ret, 0.0):
