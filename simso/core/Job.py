@@ -343,15 +343,7 @@ class MCJob(Job):
         Equivalent to ``self.task.wcet_hi``.
         """
         return self._task.wcet_hi
-    
-    def _on_checkpoint_exec(self):
-        """
-        Similar to ``_on_stop_exec``, but doesn't reset the date
-        of last execution.
-        """
-        if self._last_exec is not None:
-            self._computation_time += self.sim.now() - self._last_exec
-    
+
     def _on_mode_switch(self, crit_level):
         self.cpu.sched.criticality_mode = crit_level
         # NOTE: It's really important to notify _every_

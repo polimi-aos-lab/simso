@@ -23,11 +23,6 @@ class Apriori(MCAbstractExecutionTimeModel):
 
             del self.on_execute_date[job]
 
-    def update_executed_in_fly(self, job):
-        if job in self.on_execute_date:
-            self.executed[job] += (self.sim.now() - self.on_execute_date[job]
-                                   ) * job.cpu.speed
-
     def on_activate(self, job):
         MCAbstractExecutionTimeModel.on_activate(self, job)
         self.executed[job] = 0
