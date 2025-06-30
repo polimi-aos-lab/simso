@@ -378,15 +378,19 @@ class MCPTask(PTask):
         job = MCJob(self, "{}_{}".format(self.name, self._job_count), pred,
                   monitor=self._monitor, etm=self._etm, sim=self.sim)
 
-        if len(self._activations_fifo) == 0:
-            self.job = job
-            self.sim.activate(job, job.activate_job())
-        self._activations_fifo.append(job)
-        self._jobs.append(job)
+        if self.criticality_level >= self.cpu.sched.criticality_mode:
+            if len(self._activations_fifo) == 0:
+                self.job = job
+                self.sim.activate(job, job.activate_job())
+            self._activations_fifo.append(job)
+            self._jobs.append(job)
 
-        timer_deadline = Timer(self.sim, MCPTask._job_killer,
-                               (self, job), self.deadline)
-        timer_deadline.start()
+            timer_deadline = Timer(self.sim, MCPTask._job_killer,
+                                (self, job), self.deadline)
+            timer_deadline.start()
+        else:
+            self.cpu.sched.monitor_drop_job(self.cpu, job)
+            self._sim.logger.log(job.name + " Dropped.", kernel=False)
 
     def _job_killer(self, job):
         # Skip jobs which have never been released

@@ -19,9 +19,6 @@ class EDF_VD_mono(Scheduler):
                 "EDF-VD can only schedule Mixed-Criticality tasks."
 
     def on_activate(self, job):
-        if job.criticality_level < self.criticality_mode:
-            return
-
         if job.task.criticality_level == CritLevel.HI:
             Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
             Uhi_hi = self.system_utilization_at_level(CritLevel.HI, CritLevel.HI)
