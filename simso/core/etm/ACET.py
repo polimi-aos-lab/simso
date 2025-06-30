@@ -1,5 +1,6 @@
 from simso.core.etm.AbstractExecutionTimeModel \
     import (AbstractExecutionTimeModel, MCAbstractExecutionTimeModel)
+
 import random
 
 # TODO: the seed should be specified in order to evaluate on identical systems.

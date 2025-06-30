@@ -1,5 +1,4 @@
 import abc
-from math import isclose
 
 
 class AbstractExecutionTimeModel(object):
