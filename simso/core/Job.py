@@ -388,7 +388,11 @@ class MCJob(Job):
 
                 #print(f"EXEC [{self.name}] C = {self.computation_time} ret = {ret / self._sim.cycles_per_ms} rwcet = {rwcet / self._sim.cycles_per_ms}")
                 while ret > 0:
-                    yield hold, self, min(int(ceil(ret)), int(ceil(rwcet)))
+                    if not self.cpu.sched.has_switched_mode:
+                        closest_event = min(int(ceil(ret)), int(ceil(rwcet)))
+                    else:
+                        closest_event = int(ceil(ret))
+                    yield hold, self, closest_event 
 
                     if not self.interrupted():
                         # If executed without interruption for either ret or rwcet cycles.
