@@ -50,9 +50,10 @@ class MCAbstractExecutionTimeModel(AbstractExecutionTimeModel):
     def __init__(self, sim, *_):
         self.sim = sim
         self.executed = {}
+        self.curr_wcet = {}
 
     def on_activate(self, job):
-        self.curr_wcet = job.wcet
+        self.curr_wcet[job] = job.wcet
 
     @abc.abstractmethod
     def on_mode_switch(self, *_):
@@ -62,5 +63,5 @@ class MCAbstractExecutionTimeModel(AbstractExecutionTimeModel):
         """
         Returns the distance from the current-mode WCET, in cycles.
         """
-        wcet_cycles = int(self.curr_wcet * self.sim.cycles_per_ms)
+        wcet_cycles = int(self.curr_wcet[job] * self.sim.cycles_per_ms)
         return int(wcet_cycles - self.get_executed(job))

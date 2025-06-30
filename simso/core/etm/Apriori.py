@@ -43,9 +43,9 @@ class Apriori(MCAbstractExecutionTimeModel):
 
     def on_mode_switch(self, job, new_crit_level):
         if new_crit_level == 'HI':
-            self.curr_wcet = job.wcet_hi
+            self.curr_wcet[job] = job.wcet_hi
         else:
-            self.curr_wcet = job.wcet
+            self.curr_wcet[job] = job.wcet
 
     def on_terminated(self, job):
         self.update_executed(job)
