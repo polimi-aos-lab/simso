@@ -47,8 +47,6 @@ class Job(Process):
         self._etm = etm
         self._was_running_on = task.cpu
 
-        self._on_activate()
-
         self.context_ok = True  # The context is ready to be loaded.
 
     def is_active(self):
@@ -291,6 +289,7 @@ class Job(Process):
 
     def activate_job(self):
         self._start_date = self.sim.now()
+        self._on_activate()
         # Notify the OS.
         self._task.cpu.activate(self)
 
@@ -365,6 +364,7 @@ class MCJob(Job):
 
     def activate_job(self):
         self._start_date = self.sim.now()
+        self._on_activate()
         # Notify the OS.
         self._task.cpu.activate(self)
 
