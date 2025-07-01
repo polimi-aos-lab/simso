@@ -160,7 +160,7 @@ class Processor(Process):
                     self.sim.logger.log(self.name + " idle.", kernel=True)
                     # TODO: fix this ugly hack.
                     if self.sched.clas in ('simso.schedulers.EDF_VD_mono'):
-                        if str(self.sched.criticality_mode) == 'HI':
+                        if str(self.sched.criticality_mode) != 'LO':
                             self.sched.criticality_mode = 'LO'
                             self.sched.monitor_mode_switch_down(self, self.sim.now())
                             self.sim.logger.log(self.name + " Switch back to criticality level " + \
