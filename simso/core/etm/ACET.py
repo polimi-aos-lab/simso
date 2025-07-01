@@ -61,7 +61,6 @@ class ACET(AbstractExecutionTimeModel):
 
 class MC_ACET(MCAbstractExecutionTimeModel):
     def __init__(self, sim, *_):
-        print("MC_ACET")
         MCAbstractExecutionTimeModel.__init__(self, sim)
         self.sim = sim
         self.et = {}

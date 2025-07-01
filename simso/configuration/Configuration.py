@@ -294,7 +294,7 @@ class Configuration(object):
                 "A Mixed-Criticality task must have an assigned criticality level."
             
             assert criticality_level in ["LO", "HI"], \
-                f"Supported criticality levels are: {{\'LO\', \'HI\'}} but \'{criticality_level}\' was set."
+                f"Supported criticality levels are: {{'LO', 'HI'}} but '{criticality_level}' was set."
             
             criticality_level = CritLevel.from_string(criticality_level)
 
