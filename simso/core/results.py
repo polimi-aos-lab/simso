@@ -297,8 +297,8 @@ class Results(object):
                 self.scheduler.mc_mode_resume_count += 1
             elif evt.event == SchedulerEvent.DROPPED_JOB:
                 if evt.job._task.name not in self.scheduler.mc_dropped_job_count:
-                    self.scheduler.mc_dropped_job_count[evt.job._task.name] = 0
-                self.scheduler.mc_dropped_job_count[evt.job._task.name] += 1
+                    self.scheduler.mc_dropped_job_count[evt.job._task.name] = []
+                self.scheduler.mc_dropped_job_count[evt.job._task.name].append(evt.job)
             last = t
 
     def _generate_processors(self):
