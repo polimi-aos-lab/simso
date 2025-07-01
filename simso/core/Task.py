@@ -387,10 +387,13 @@ class MCPTask(PTask):
                 self.job = job
                 self.sim.activate(job, job.activate_job())
             self._activations_fifo.append(job)
-            self._jobs.append(job)
 
+            deadline = self.deadline
+            # TODO: this is too EDF-VD dependant...
+            if self.cpu.sched.needs_virtual_deadline():
+                deadline *= self.cpu.sched.vd_coeff
             timer_deadline = Timer(self.sim, MCPTask._job_killer,
-                                (self, job), self.deadline)
+                                (self, job), deadline)
             timer_deadline.start()
         else:
             self.cpu.sched.monitor_drop_job(self.cpu, job)

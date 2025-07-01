@@ -12,26 +12,24 @@ class EDF_VD_mono(Scheduler):
     _criticality_mode = CritLevel.LO
 
     def init(self):
-        self.ready_list = []
-
         for t in self.task_list:
             assert isinstance(t, MCPTask), \
                 "EDF-VD can only schedule Mixed-Criticality tasks."
+
+        self.ready_list = []
 
         self.Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
         self.Uhi_hi = self.system_utilization_at_level(CritLevel.HI, CritLevel.HI)
         self.Ulo_hi = self.system_utilization_at_level(CritLevel.LO, CritLevel.HI)
 
     def on_activate(self, job):
-        if job.task.criticality_level == CritLevel.HI:
-            Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
-            Uhi_hi = self.system_utilization_at_level(CritLevel.HI, CritLevel.HI)
-
+        """ if self.criticality_mode == CritLevel.LO and job.task.criticality_level == CritLevel.HI:
             vd = self.vd_coeff
 
             if self.Ulo_lo + self.Uhi_hi > 1:
                 # Apply virtual deadlines
                 job.absolute_deadline *= vd
+                print(f"VD for job {job.name}: from {job.absolute_deadline/vd} to {job.absolute_deadline} [{vd}]") """
 
         self.ready_list.append(job)
         job.cpu.resched()
@@ -63,6 +61,13 @@ class EDF_VD_mono(Scheduler):
                     res += float(t.wcet_hi) / t.period
 
         return res
+
+    def needs_virtual_deadline(self):
+        """
+        Returns true if the subsequent jobs need to be
+        activated with a modified deadline.
+        """
+        return self.Ulo_lo + self.Uhi_hi > 1
 
     @property
     def vd_coeff(self):
