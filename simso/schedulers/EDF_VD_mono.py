@@ -18,6 +18,10 @@ class EDF_VD_mono(Scheduler):
             assert isinstance(t, MCPTask), \
                 "EDF-VD can only schedule Mixed-Criticality tasks."
 
+        self.Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
+        self.Uhi_hi = self.system_utilization_at_level(CritLevel.HI, CritLevel.HI)
+        self.Ulo_hi = self.system_utilization_at_level(CritLevel.LO, CritLevel.HI)
+
     def on_activate(self, job):
         if job.task.criticality_level == CritLevel.HI:
             Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
@@ -25,7 +29,7 @@ class EDF_VD_mono(Scheduler):
 
             vd = self.vd_coeff
 
-            if Ulo_lo + Uhi_hi > 1:
+            if self.Ulo_lo + self.Uhi_hi > 1:
                 # Apply virtual deadlines
                 job.absolute_deadline *= vd
 
@@ -65,10 +69,7 @@ class EDF_VD_mono(Scheduler):
         """
         Virtual deadline scaling factor.
         """
-        Ulo_lo = self.system_utilization_at_level(CritLevel.LO, CritLevel.LO)
-        Ulo_hi = self.system_utilization_at_level(CritLevel.LO, CritLevel.HI)
-
-        return Ulo_hi / (1 - Ulo_lo)
+        return self.Ulo_hi / (1 - self.Ulo_lo)
 
     @property
     def has_switched_mode(self):
