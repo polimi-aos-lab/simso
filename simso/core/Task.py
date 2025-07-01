@@ -377,6 +377,10 @@ class MCPTask(PTask):
         self._job_count += 1
         job = MCJob(self, "{}_{}".format(self.name, self._job_count), pred,
                   monitor=self._monitor, etm=self._etm, sim=self.sim)
+        # NOTE: for analysis purposes, every job is added to the queue.
+        # By looking at the content of `Results` it is possible to compute
+        # which jobs get dropped and which don't.
+        self._jobs.append(job)
 
         if self.criticality_level >= self.cpu.sched.criticality_mode:
             if len(self._activations_fifo) == 0:
@@ -390,7 +394,7 @@ class MCPTask(PTask):
             timer_deadline.start()
         else:
             self.cpu.sched.monitor_drop_job(self.cpu, job)
-            self._sim.logger.log(job.name + " Dropped.", kernel=False)
+            job.on_drop()
 
     def _job_killer(self, job):
         # Skip jobs which have never been released

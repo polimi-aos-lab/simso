@@ -8,6 +8,7 @@ class JobEvent:
     TERMINATED = 4
     ABORTED = 5
     OVERRUN = 6
+    DROPPED = 7
 
     count = 0
 

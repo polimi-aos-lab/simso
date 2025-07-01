@@ -270,6 +270,8 @@ class Results(object):
                         rt.other_executed = True
             elif evt[1].event == JobEvent.PREEMPTED:
                 self.tasks[task].preempt(evt[0])
+            elif evt[1].event == JobEvent.DROPPED:
+                self.tasks[task].add_job(evt[0], evt[1].job)
 
     def _generate_scheduler(self):
         self.scheduler = SchedulerR()

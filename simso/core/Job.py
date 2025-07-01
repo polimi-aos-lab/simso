@@ -344,6 +344,10 @@ class MCJob(Job):
         """
         return self._task.wcet_hi
 
+    def on_drop(self):
+        self._monitor.observe(JobEvent(self, JobEvent.DROPPED))
+        self._sim.logger.log(self.name + " Dropped.", kernel=False)
+
     def _on_mode_switch(self, crit_level):
         self.cpu.sched.criticality_mode = crit_level
         # NOTE: It's really important to notify _every_
