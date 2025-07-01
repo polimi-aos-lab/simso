@@ -28,7 +28,10 @@ class ACET(AbstractExecutionTimeModel):
         self.executed[job] = 0
         self.et[job] = min(
             job.task.wcet,
-            random.normalvariate(job.task.acet, job.task.et_stddev)
+            max(
+                job.task.acet * 0.05,
+                random.normalvariate(job.task.acet, job.task.et_stddev)
+            )
         ) * self.sim.cycles_per_ms
 
     def on_execute(self, job):
@@ -79,9 +82,15 @@ class MC_ACET(MCAbstractExecutionTimeModel):
     def on_activate(self, job):
         MCAbstractExecutionTimeModel.on_activate(self, job)
         self.executed[job] = 0
+        # Never make `et` touch neither 0 nor WCET
+        # to avoid negative ret while the job
+        # is running.
         self.et[job] = min(
-            job.task.wcet,
-            random.normalvariate(job.task.acet, job.task.et_stddev)
+            job.task.wcet * 0.995,
+            max(
+                job.task.acet * 0.05,
+                random.normalvariate(job.task.acet, job.task.et_stddev)
+            )
         ) * self.sim.cycles_per_ms
 
     def on_execute(self, job):
